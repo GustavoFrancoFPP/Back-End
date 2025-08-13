@@ -1,7 +1,7 @@
 <?php
 
 // Menu interativo
-
+for ($i = 0; $i < 6; $i++) {
 echo "Escolha uma opção:";
 echo "1.";
 echo "2.";
@@ -12,9 +12,10 @@ switch (readline (prompt: "Digite sua opção: ")) {
         echo "Olá";
         break;
     case 2:
-        echo "";
+        echo date('d/m/Y');
         break;
     case 3:
         echo "Sair";
 
+} 
 }
