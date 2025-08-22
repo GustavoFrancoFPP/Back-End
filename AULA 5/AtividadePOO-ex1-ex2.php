@@ -19,10 +19,14 @@ class Cachorro {
 
     }
 }
-$carro1 = new Carro("Porsche", "911", 2020, false, 3);
-$carro2 = new Carro("Mitsubishi", "Lancer", 1945, true, 1);
-$carro3 = new Carro("Volkswagen", "Fusca", 1960, true, 3);
-$carro4 = new Carro("Fiat", "Uno", 1985, false, 2);
-$carro5 = new Carro("Chevrolet", "Logus", 2018, true, N_Donos: 4);
-$carro6 = new Carro("Toyota", "Corolla", 2021, false, 5);
+$cachorro1 = new Cachorro("Rex", 5, "Labrador", true, "Macho");
+$cachorro2 = new Cachorro("Bela", 3, "Poodle", false, "Fêmea");
+$cachorro3 = new Cachorro("Max", 2, "Bulldog", true, "Macho");
+$cachorro4 = new Cachorro("Luna", 4, "Beagle", false, "Fêmea");
+$cachorro5 = new Cachorro("Toby", 6, "Golden Retriever", true, "Macho");
+$cachorro6 = new Cachorro("Bella", 1, "Chihuahua", false, "Fêmea");
+$cachorro7 = new Cachorro("Charlie", 3, "Cocker Spaniel", true, "Macho");
+$cachorro8 = new Cachorro("Daisy", 2, "Shih Tzu", false, "Fêmea");
+$cachorro9 = new Cachorro("Rocky", 4, "Boxer", true, "Macho");
+$cachorro10 = new Cachorro("Lola", 5, "Salsicha", false, "Fêmea");
 ?>
