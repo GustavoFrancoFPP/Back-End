@@ -18,6 +18,15 @@ class Cachorro {
 
 
     }
+// ex5
+    public function latir() {
+        echo "O cachorro $this->nome está latindo!\n";
+    }
+// ex6
+    public function marcarTerritorio() {
+        echo"O cachorro $this->nome e this->raça está marcando território!\n";
+    }
+
 }
 $cachorro1 = new Cachorro("Rex", 5, "Labrador", true, "Macho");
 $cachorro2 = new Cachorro("Bela", 3, "Poodle", false, "Fêmea");
@@ -29,4 +38,7 @@ $cachorro7 = new Cachorro("Charlie", 3, "Cocker Spaniel", true, "Macho");
 $cachorro8 = new Cachorro("Daisy", 2, "Shih Tzu", false, "Fêmea");
 $cachorro9 = new Cachorro("Rocky", 4, "Boxer", true, "Macho");
 $cachorro10 = new Cachorro("Lola", 5, "Salsicha", false, "Fêmea");
+
+$cachorro1->latir();
+$cachorro2->marcarTerritorio();
 ?>
