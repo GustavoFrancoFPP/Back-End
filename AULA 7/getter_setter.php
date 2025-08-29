@@ -48,7 +48,7 @@ public function getIdade() {
 
 public function exibirInfo() {
     return "Nome do aluno: " . $this->getNome() . "\nCPF: " . $this->getCpf() . 
-    "\nTelefone: " . $this->getTelefone() . "\nIdade: " . $this->Idade() . "\nEmail: " . $this->email . 
+    "\nTelefone: " . $this->getTelefone() . "\nIdade: " . $this->getIdade() . "\nEmail: " . $this->email . 
     "\nSenha: " . $this->senha;
 }
 }
