@@ -41,5 +41,5 @@ class Pessoa {
 }
 
 // Exemplo de uso:
-$pessoa = new Pessoa("Samuel", 22, "samuel@exemplo.com");
+$pessoa = new Pessoa("Samuel", 25, "samuel@exemplo.com");
 $pessoa->exibirInfo();

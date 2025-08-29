@@ -32,7 +32,4 @@ $carro = new Carro1("fiat", "uno");
 echo "Marca: " . $carro->getMarca() ;
 echo "Modelo: " . $carro->getModelo() ;
 
-$carro->setMarca("chevrolet");
-$carro->setModelo("onix");
-
 ?>
