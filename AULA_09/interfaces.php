@@ -60,6 +60,32 @@ class Circulo implements Forma {
     }
 }
 
+
+class Pentagono {
+    private $lado;
+
+    public function __construct($lado) {
+        $this->lado = $lado;
+    }
+
+    public function calcularArea() {
+        $area = (sqrt(5 * (5 + 2 * sqrt(5))) * pow($this->lado, 2)) / 4;
+        return $area;
+    }
+}
+
+class Hexagono implements Forma {
+    private $lado;
+    public function __construct($lado) {
+        $this->lado = $lado;   
+    }
+
+    public function calcularArea() {
+        $area = (3 * sqrt(3) * ($this->lado * $this->lado)) / 2;
+        return number_format($area, 2);
+    }
+}
+
 $lado = readline("Digite o lado do quadrado: ");
 $quadrado = new Quadrado($lado);
 
@@ -69,13 +95,11 @@ $circulo = new Circulo($raio);
 echo "A área do quadrado é: " . $quadrado->calcularArea() . "\n";
 echo "A área do círculo é: " . $circulo->calcularArea() . "\n";
 
-class Pentagono implements Forma {
-    private $lado;
-    public function __construct($lado) {
-        $this-> lado = $lado;
-    }
-    public function calcularArea() {
-        return (5 * $this->lado)
-    }
-}
-}
+$pentagono = new Pentagono(10);
+$hexagono = new Hexagono(8);
+
+$areaPentagono = $pentagono->calcularArea();
+echo "Área do Pentágono: " . number_format($areaPentagono, 2) . "\n";
+
+$areaHexagono = $hexagono->calcularArea();
+echo "Área do Hexágono: " . $areaHexagono . "\n";
