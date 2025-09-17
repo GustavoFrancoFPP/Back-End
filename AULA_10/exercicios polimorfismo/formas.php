@@ -59,24 +59,55 @@ echo "A área do círculo é: " . $circulo->calcularArea() . "\n";
 
 //Exercício 2 – Animais e Sons
 
-interface Animal {
-    public function fazersom();
-}
-class Cachorro implements Animal {
-    public function fazersom() {
-        return "Au Au!";
+// interface Animal {
+//     public function fazersom();
+// }
+// class Cachorro implements Animal {
+//     public function fazersom() {
+//         return "Au Au!";
+//     }
+// }
+// class Gato implements Animal {
+//     public function fazersom() {
+//         return "Miau!";
+//     }
+// }
+// class Vaca implements Animal {
+//     public function fazersom() {
+//         return "Muuu!";
+//     }
+// }
+class Animal {
+    public function fazerSom() {
+        return "Som genérico de animal.";
     }
 }
-class Gato implements Animal {
-    public function fazersom() {
+
+class Cachorro extends Animal {
+    public function fazerSom() {
+        return "Au au!";
+    }
+}
+
+class Gato extends Animal {
+    public function fazerSom() {
         return "Miau!";
     }
 }
-class Vaca implements Animal {
-    public function fazersom() {
+
+class Vaca extends Animal {
+    public function fazerSom() {
         return "Muuu!";
     }
 }
+
+$cachorro = new Cachorro();
+$gato = new Gato();
+$vaca = new Vaca();
+
+echo $cachorro->fazerSom() . "\n";
+echo $gato->fazerSom() . "\n";
+echo $vaca->fazerSom() . "\n";
 
 // Exercício 3 – Meios de Transporte
 

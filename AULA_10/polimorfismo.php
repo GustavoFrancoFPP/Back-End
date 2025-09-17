@@ -49,7 +49,7 @@ class Elevador implements polimorfismo
 // crie ao menos objetos para testar cada classe
 $carro1 = new Carro();
 $carro1->nome = "Chevette";
-$carro1->mover();
+
 $aviao = new Aviao();
 $aviao->mover();
 $barco = new Barco();
