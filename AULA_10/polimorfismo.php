@@ -15,9 +15,10 @@ interface polimorfismo
 }
 class Carro implements polimorfismo
 {
+    public $nome;
     public function mover()
     {
-        echo "O carro está andando em Limeira City!!\n";
+        echo "O carro {$this->nome} está andando em Limeira City!!\n";
     }    
 }
 
@@ -46,8 +47,9 @@ class Elevador implements polimorfismo
 }
 
 // crie ao menos objetos para testar cada classe
-$carro = new Carro();
-$carro->mover();
+$carro1 = new Carro();
+$carro1->nome = "Chevette";
+$carro1->mover();
 $aviao = new Aviao();
 $aviao->mover();
 $barco = new Barco();
