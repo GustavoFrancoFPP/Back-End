@@ -5,14 +5,14 @@ require_once 'produtosCRUD.php';
 
 $DAO = new ProdutosDAO();
 
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Tomate", 5.99));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Maça", 3.99));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Queijo Brie", 25.90));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Iogurte Grego", 8.50));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Guaraná Jesus", 6.99));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Bolacha Bono", 4.50));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Desinfetante Urca", 12.99));
-$DAO->criarProduto(new Produtos(rand(1000, 9999), "Prestobarba Bic", 15.90));
+$DAO->criarProduto(new Produtos(1, "Tomate", 5.99));
+$DAO->criarProduto(new Produtos(2, "Maça", 3.99));
+$DAO->criarProduto(new Produtos(3, "Queijo Brie", 25.90));
+$DAO->criarProduto(new Produtos(4, "Iogurte Grego", 8.50));
+$DAO->criarProduto(new Produtos(5, "Guaraná Jesus", 6.99));
+$DAO->criarProduto(new Produtos(6, "Bolacha Bono", 4.50));
+$DAO->criarProduto(new Produtos(7, "Desinfetante Urca", 12.99));
+$DAO->criarProduto(new Produtos(8, "Prestobarba Bic", 15.90));
 
 foreach ($DAO->lerProdutos() as $produto) {
     if ($produto->getNome() === "Desinfetante Urca") {
