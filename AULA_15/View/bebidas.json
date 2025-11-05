@@ -1,0 +1,16 @@
+{
+    "Baly de Maracuja": {
+        "nome": "Baly de Maracuja",
+        "categoria": "Energ\u00e9tico",
+        "volume": "2000 ml",
+        "valor": "13.99",
+        "qtde": "1234923"
+    },
+    "w": {
+        "nome": "w",
+        "categoria": "Refrigerante",
+        "volume": "2000 ml",
+        "valor": "232.77",
+        "qtde": "34"
+    }
+}
