@@ -6,11 +6,18 @@
         "valor": "13.99",
         "qtde": "1234923"
     },
-    "w": {
-        "nome": "w",
-        "categoria": "Refrigerante",
-        "volume": "2000 ml",
-        "valor": "232.77",
-        "qtde": "34"
+    "Toddynho": {
+        "nome": "Toddynho",
+        "categoria": "Vinho",
+        "volume": "100 ml",
+        "valor": "3.50",
+        "qtde": "12454352"
+    },
+    "ewfw": {
+        "nome": "ewfw",
+        "categoria": "Vinho",
+        "volume": "3254",
+        "valor": "234243",
+        "qtde": "324"
     }
 }
