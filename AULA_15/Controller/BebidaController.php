@@ -1,5 +1,4 @@
 <?php
-// CORRIGIR ESTAS LINHAS:
 require_once __DIR__ . '/../Model/BebidaDAO.php';
 require_once __DIR__ . '/../Model/Bebidas.php';
 
@@ -14,16 +13,20 @@ class BebidaController {
         return $this->dao->lerBebidas();
     }
 
+    public function getBebida($nome) {
+        return $this->dao->getBebidaPorNome($nome);
+    }
+
     public function criar($nome, $categoria, $volume, $valor, $qtde) {
         $bebida = new Bebida($nome, $categoria, $volume, $valor, $qtde);
         $this->dao->criarBebida($bebida);
     }
 
-    public function atualizar($nome, $valor, $qtde) {
-        $this->dao->atualizarBebida($nome, $valor, $qtde);
+    public function atualizar($nomeAntigo, $novoNome, $categoria, $volume, $valor, $qtde) {
+        return $this->dao->atualizarBebida($nomeAntigo, $novoNome, $categoria, $volume, $valor, $qtde);
     }
 
     public function deletar($nome) {
-        $this->dao->excluirBebida($nome);
+        return $this->dao->excluirBebida($nome);
     }
 }

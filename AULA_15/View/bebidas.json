@@ -1,11 +1,4 @@
 {
-    "Baly de Maracuja": {
-        "nome": "Baly de Maracuja",
-        "categoria": "Energ\u00e9tico",
-        "volume": "2000 ml",
-        "valor": "13.99",
-        "qtde": "1234923"
-    },
     "Toddynho": {
         "nome": "Toddynho",
         "categoria": "Vinho",
@@ -13,11 +6,18 @@
         "valor": "3.50",
         "qtde": "12454352"
     },
-    "ewfw": {
-        "nome": "ewfw",
-        "categoria": "Vinho",
-        "volume": "3254",
-        "valor": "234243",
-        "qtde": "324"
+    "Baly de Maracuja": {
+        "nome": "Baly de Maracuja",
+        "categoria": "Energético",
+        "volume": "2000 ml",
+        "valor": "13.99",
+        "qtde": "1234923"
+    },
+    "Cachaças": {
+        "nome": "Cachaças",
+        "categoria": "Destilado",
+        "volume": "750 ml",
+        "valor": "22.99",
+        "qtde": "12"
     }
 }
