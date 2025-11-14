@@ -1,0 +1,23 @@
+{
+    "Toddynho": {
+        "nome": "Toddynho",
+        "categoria": "Vinho",
+        "volume": "100 ml",
+        "valor": "3.50",
+        "qtde": "12454352"
+    },
+    "Baly de Maracuja": {
+        "nome": "Baly de Maracuja",
+        "categoria": "Energético",
+        "volume": "2000 ml",
+        "valor": "13.99",
+        "qtde": "1234923"
+    },
+    "Cachaças": {
+        "nome": "Cachaças",
+        "categoria": "Destilado",
+        "volume": "750 ml",
+        "valor": "22.99",
+        "qtde": "12"
+    }
+}
