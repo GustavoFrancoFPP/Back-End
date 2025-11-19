@@ -92,4 +92,9 @@ class BebidaDAO {
         }
         return null;
     }
+
+    // Compatibilidade: método esperado pelo controller
+    public function getBebidaPorNome($nome) {
+        return $this->buscarPorNome($nome);
+    }
 }
