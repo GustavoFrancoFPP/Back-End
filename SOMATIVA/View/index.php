@@ -1,10 +1,6 @@
 <?php
-// DEIXE SEMPRE ESTAS LINHAS NO TOPO PARA DEBUG
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
 
-// PATHS CORRETOS
+// PATHS
 require_once __DIR__ . '/../Model/Connection.php';
 require_once __DIR__ . '/../Model/Livros.php';
 require_once __DIR__ . '/../Model/LivroDAO.php';

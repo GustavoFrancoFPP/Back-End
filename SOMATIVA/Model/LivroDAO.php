@@ -19,7 +19,6 @@ class LivroDAO {
         ");
     }
 
-    // ✅ ADICIONE ESTE MÉTODO QUE ESTÁ FALTANDO:
     public function lerLivros() {
         $stmt = $this->conn->query("SELECT * FROM Livro ORDER BY titulo");
         $result = [];
