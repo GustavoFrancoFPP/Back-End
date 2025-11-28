@@ -1,32 +1,76 @@
 <?php
+// DEIXE SEMPRE ESTAS LINHAS NO TOPO PARA DEBUG
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+// PATHS CORRETOS
+require_once __DIR__ . '/../Model/Connection.php';
+require_once __DIR__ . '/../Model/Livros.php';
+require_once __DIR__ . '/../Model/LivroDAO.php';
 require_once __DIR__ . '/../Controller/LivroController.php';
 
 $controller = new LivroController();
+$mensagem = '';
+$tipoMensagem = ''; // success ou error
 
-// Ações da página
+// Processa as ações POST do formulário (CRUD operations)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Trata o campo de gênero (select ou input personalizado)
+    $genero = $_POST['genero'];
+    if ($genero === 'Outro' && !empty($_POST['outroGenero'])) {
+        $genero = $_POST['outroGenero'];
+    }
+    
     if ($_POST['acao'] === 'salvar') {
-        $controller->criar($_POST['titulo'], $_POST['autor'], $_POST['ano'], $_POST['genero'], $_POST['quantidade']);
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
+        // Cria um novo livro
+        $resultado = $controller->criar($_POST['titulo'], $_POST['autor'], $_POST['ano'], $genero, $_POST['quantidade']);
+        if ($resultado['success']) {
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?success=' . urlencode($resultado['message']));
+            exit;
+        } else {
+            $mensagem = $resultado['message'];
+            $tipoMensagem = 'error';
+        }
     } elseif ($_POST['acao'] === 'deletar') {
-        $controller->deletar($_POST['titulo']);
-        header('Location: ' . $_SERVER['PHP_SELF']);
+        // Remove um livro existente
+        $resultado = $controller->deletar($_POST['titulo']);
+        if ($resultado['success']) {
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?success=' . urlencode($resultado['message']));
+        } else {
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?error=' . urlencode($resultado['message']));
+        }
         exit;
     } elseif ($_POST['acao'] === 'atualizar') {
-        $controller->atualizar(
+        // Atualiza os dados de um livro
+        $resultado = $controller->atualizar(
             $_POST['tituloOriginal'],
             $_POST['titulo'],
             $_POST['autor'],
             $_POST['ano'],
-            $_POST['genero'],
+            $genero,
             $_POST['quantidade']
         );
-        header('Location: ' . $_SERVER['PHP_SELF']);
-        exit;
+        if ($resultado['success']) {
+            header('Location: ' . $_SERVER['PHP_SELF'] . '?success=' . urlencode($resultado['message']));
+            exit;
+        } else {
+            $mensagem = $resultado['message'];
+            $tipoMensagem = 'error';
+        }
     }
 }
 
+// Verifica mensagens via GET (após redirect)
+if (isset($_GET['success'])) {
+    $mensagem = $_GET['success'];
+    $tipoMensagem = 'success';
+} elseif (isset($_GET['error'])) {
+    $mensagem = $_GET['error'];
+    $tipoMensagem = 'error';
+}
+
+// Prepara livro para edição quando acionado o botão editar
 $livroParaEditar = null;
 if (isset($_POST['acao']) && $_POST['acao'] === 'editar') {
     foreach ($controller->ler() as $livro) {
@@ -37,7 +81,9 @@ if (isset($_POST['acao']) && $_POST['acao'] === 'editar') {
     }
 }
 
+// Carrega a lista de livros para exibição
 $lista = $controller->ler();
+$categorias = Livro::getCategorias();
 ?>
 
 <!DOCTYPE html>
@@ -47,390 +93,420 @@ $lista = $controller->ler();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Cadastro e Gerenciamento de Livros da Biblioteca Escolar</title>
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        padding: 20px;
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        overflow: hidden;
-    }
-
-    header {
-        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
-        color: white;
-        padding: 40px 30px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M0,0 L100,0 L100,100 Z" fill="rgba(255,255,255,0.1)"/></svg>');
-        background-size: cover;
-    }
-
-    header h1 {
-        font-size: 2.5em;
-        margin-bottom: 10px;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        position: relative;
-    }
-
-    header p {
-        font-size: 1.2em;
-        opacity: 0.9;
-        position: relative;
-    }
-
-    .content {
-        padding: 40px;
-        display: grid;
-        grid-template-columns: 1fr 2fr;
-        gap: 40px;
-    }
-
-    @media (max-width: 768px) {
-        .content {
-            grid-template-columns: 1fr;
-            gap: 30px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-    }
 
-    .form-container {
-        background: #f8f9fa;
-        padding: 30px;
-        border-radius: 12px;
-        border: 1px solid #e9ecef;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-        height: fit-content;
-    }
-
-    .form-container h2 {
-        color: #2c3e50;
-        margin-bottom: 25px;
-        font-size: 1.5em;
-        border-bottom: 3px solid #3498db;
-        padding-bottom: 10px;
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    input, select {
-        padding: 12px 15px;
-        border: 2px solid #e9ecef;
-        border-radius: 8px;
-        font-size: 16px;
-        transition: all 0.3s ease;
-        background: white;
-    }
-
-    input:focus, select:focus {
-        outline: none;
-        border-color: #3498db;
-        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        transform: translateY(-2px);
-    }
-
-    label {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: -10px;
-    }
-
-    .btn {
-        padding: 12px 20px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-    }
-
-    .btn-editar {
-        background: linear-gradient(135deg, #27ae60, #2ecc71);
-        color: white;
-    }
-
-    .btn-editar:hover {
-        background: linear-gradient(135deg, #219a52, #27ae60);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
-    }
-
-    .btn-excluir {
-        background: linear-gradient(135deg, #e74c3c, #c0392b);
-        color: white;
-    }
-
-    .btn-excluir:hover {
-        background: linear-gradient(135deg, #c0392b, #a93226);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
-    }
-
-    .btn-cancelar {
-        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-        color: white;
-    }
-
-    .btn-cancelar:hover {
-        background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(149, 165, 166, 0.4);
-    }
-
-    .lista-container {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-    }
-
-    .lista-container h2 {
-        background: linear-gradient(135deg, #34495e, #2c3e50);
-        color: white;
-        padding: 20px 25px;
-        margin: 0;
-        font-size: 1.5em;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-
-    th {
-        background-color: #f8f9fa;
-        padding: 15px 20px;
-        text-align: left;
-        font-weight: 600;
-        color: #495057;
-        border-bottom: 2px solid #dee2e6;
-    }
-
-    td {
-        padding: 15px 20px;
-        border-bottom: 1px solid #e9ecef;
-        color: #495057;
-    }
-
-    tr:hover {
-        background-color: #f8f9fa;
-        transform: scale(1.01);
-        transition: all 0.2s ease;
-    }
-
-    .acoes {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-    }
-
-    .acoes form {
-        display: inline;
-    }
-
-    .vazio {
-        text-align: center;
-        padding: 40px;
-        color: #6c757d;
-        font-style: italic;
-    }
-
-    .vazio p {
-        font-size: 1.1em;
-    }
-
-    /* Animações */
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-    }
 
-    .form-container, .lista-container {
-        animation: fadeIn 0.6s ease-out;
-    }
-
-    /* Scroll personalizado */
-    .lista-container {
-        max-height: 600px;
-        overflow-y: auto;
-    }
-
-    .lista-container::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .lista-container::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 4px;
-    }
-
-    .lista-container::-webkit-scrollbar-thumb {
-        background: #c1c1c1;
-        border-radius: 4px;
-    }
-
-    .lista-container::-webkit-scrollbar-thumb:hover {
-        background: #a8a8a8;
-    }
-
-    /* Responsividade para tabela */
-    @media (max-width: 600px) {
-        table {
-            display: block;
-            overflow-x: auto;
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            padding: 20px;
         }
-        
-        .acoes {
+
+        /* Estilos para mensagens de alerta */
+.alert {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.alert-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.alert-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
             flex-direction: column;
         }
-        
-        .btn {
-            width: 100%;
+
+        .form-group label {
+            font-weight: 600;
             margin-bottom: 5px;
+            color: #555;
         }
-    }
-</style>
+
+        .form-group input, .form-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-edit {
+            background: #ffc107;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-edit:hover, .btn-delete:hover, .btn-cancel:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .actions form {
+            margin: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-    <header>
-        <h1>Biblioteca Escolar</h1>
-        <p>Sistema de Cadastro e Gerenciamento de Livros</p>
-    </header>
-    
-    <div class="content">
-        <div class="form-container">
-            <?php if ($livroParaEditar): ?>
-                <h2> Editar Livro</h2>
-                <form method="POST">
-                    <input type="hidden" name="acao" value="atualizar">
-                    <input type="hidden" name="tituloOriginal" value="<?php echo htmlspecialchars($livroParaEditar->getTitulo()); ?>">
-                    <input type="text" name="titulo" placeholder="Título:" value="<?php echo htmlspecialchars($livroParaEditar->getTitulo()); ?>" required>
-                    <input type="text" name="autor" placeholder="Autor:" value="<?php echo htmlspecialchars($livroParaEditar->getAutor()); ?>" required>
-                    <input type="number" name="ano" placeholder="Ano de Publicação:" value="<?php echo htmlspecialchars($livroParaEditar->getAnoPublicacao()); ?>" required>
-                    <?php
-                        $generos = ['Ficção','Não-ficção','Fantasia','Romance','Aventura','Biografia','Infantil'];
-                    ?>
-                    <label for="genero">Gênero</label>
-                    <select name="genero" id="genero" required>
-                        <option value="">Selecione o gênero</option>
-                        <?php foreach ($generos as $g): ?>
-                            <option value="<?php echo htmlspecialchars($g); ?>" <?php echo ($livroParaEditar && $livroParaEditar->getGenero() === $g) ? 'selected' : ''; ?>><?php echo htmlspecialchars($g); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <input type="number" name="quantidade" placeholder="Quantidade em estoque:" value="<?php echo htmlspecialchars($livroParaEditar->getQuantidade()); ?>" required>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <button type="submit" class="btn btn-editar">✓ Atualizar</button>
-                        <a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-cancelar">✕ Cancelar</a>
-                    </div>
-                </form>
-            <?php else: ?>
-                <h2> Cadastrar Novo Livro</h2>
-                <form method="POST">
-                    <input type="hidden" name="acao" value="salvar">
-                    <input type="text" name="titulo" placeholder="Título:" required>
-                    <input type="text" name="autor" placeholder="Autor:" required>
-                    <input type="number" name="ano" placeholder="Ano de Publicação:" required>
-                    <?php
-                        $generos = ['Ficção','Não-ficção','Fantasia','Romance','Aventura','Biografia','Infantil'];
-                    ?>
-                    <label for="genero">Gênero</label>
-                    <select name="genero" id="genero" required>
-                        <option value="">Selecione o gênero</option>
-                        <?php foreach ($generos as $g): ?>
-                            <option value="<?php echo htmlspecialchars($g); ?>"><?php echo htmlspecialchars($g); ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <input type="number" name="quantidade" min="0" placeholder="Quantidade em estoque:" required>
-                    <button type="submit" class="btn btn-editar"> Cadastrar</button>
-                </form>
-            <?php endif; ?>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Sistema de Biblioteca Escolar</h1>
+            <p>Cadastro e gerenciamento de acervo literário</p>
         </div>
 
-        <div class="lista-container">
-            <h2> Lista de Livros</h2>
-            <?php if (empty($lista)): ?>
-                <div class="vazio">
-                    <p>Nenhum livro cadastrado. Comece adicionando um novo!</p>
+        <?php if ($mensagem): ?>
+            <div class="alert alert-<?php echo $tipoMensagem; ?>" id="mensagemAlerta">
+                <?php echo htmlspecialchars($mensagem); ?>
+            </div>
+            <script>
+                // Remove a mensagem automaticamente após o tempo apropriado
+                const tempoRemocao = <?php echo $tipoMensagem === 'success' ? 5000 : 0; ?>;
+                if (tempoRemocao > 0) {
+                    setTimeout(function() {
+                        const alerta = document.getElementById('mensagemAlerta');
+                        if (alerta) {
+                            alerta.style.transition = 'opacity 0.5s ease-out';
+                            alerta.style.opacity = '0';
+                            setTimeout(function() {
+                                alerta.remove();
+                            }, 500);
+                        }
+                    }, tempoRemocao);
+                }
+            </script>
+        <?php endif; ?>
+
+        <!-- Formulário de Cadastro/Edição -->
+        <div class="card">
+            <h2><?php echo $livroParaEditar ? '✏️ Editar Livro' : '➕ Cadastrar Novo Livro'; ?></h2>
+            <form method="POST" id="livroForm">
+                <?php if ($livroParaEditar): ?>
+                    <input type="hidden" name="tituloOriginal" value="<?php echo $livroParaEditar->getTitulo(); ?>">
+                    <input type="hidden" name="acao" value="atualizar">
+                <?php else: ?>
+                    <input type="hidden" name="acao" value="salvar">
+                <?php endif; ?>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="titulo">Título do Livro</label>
+                        <input type="text" id="titulo" name="titulo" 
+                               value="<?php echo $livroParaEditar ? $livroParaEditar->getTitulo() : ''; ?>" 
+                               required placeholder="Digite o título">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="autor">Autor</label>
+                        <input type="text" id="autor" name="autor" 
+                               value="<?php echo $livroParaEditar ? $livroParaEditar->getAutor() : ''; ?>" 
+                               required placeholder="Nome do autor">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="ano">Ano de Publicação</label>
+                        <input type="number" id="ano" name="ano" 
+                               value="<?php echo $livroParaEditar ? $livroParaEditar->getAnoPublicacao() : ''; ?>" 
+                               required min="1000" max="2030" placeholder="Ex: 2024">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="genero">Gênero/Categoria</label>
+                        <select id="genero" name="genero" required>
+                            <option value="">Selecione uma categoria</option>
+                            <?php
+                            $generoAtual = $livroParaEditar ? $livroParaEditar->getGenero() : '';
+                            $isOutro = !in_array($generoAtual, $categorias) && $generoAtual;
+                            
+                            foreach ($categorias as $categoria): 
+                                $selected = ($generoAtual === $categoria) ? 'selected' : '';
+                            ?>
+                                <option value="<?php echo $categoria; ?>" <?php echo $selected; ?>>
+                                    <?php echo $categoria; ?>
+                                </option>
+                            <?php endforeach; ?>
+                            
+                            <option value="Outro" <?php echo $isOutro ? 'selected' : ''; ?>>
+                                Outro
+                            </option>
+                        </select>
+                    </div>
+                    
+                    <!-- Campo para categoria personalizada -->
+                    <div class="form-group" id="outroGeneroGroup" style="display: <?php echo $isOutro ? 'block' : 'none'; ?>;">
+                        <label for="outroGenero">Especifique a categoria</label>
+                        <input type="text" id="outroGenero" name="outroGenero" 
+                               value="<?php echo $isOutro ? $generoAtual : ''; ?>" 
+                               placeholder="Digite a categoria personalizada">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="quantidade">Quantidade</label>
+                        <input type="number" id="quantidade" name="quantidade" 
+                               value="<?php echo $livroParaEditar ? $livroParaEditar->getQuantidade() : ''; ?>" 
+                               required min="1" placeholder="Ex: 5">
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        <?php echo $livroParaEditar ? '📝 Atualizar Livro' : '💾 Cadastrar Livro'; ?>
+                    </button>
+                    
+                    <?php if ($livroParaEditar): ?>
+                        <a href="<?php echo $_SERVER['PHP_SELF']; ?>" class="btn btn-cancel">❌ Cancelar</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+        </div>
+
+        <!-- Lista de Livros -->
+        <div class="card">
+            <h2>📖 Acervo de Livros (<?php echo count($lista); ?>)</h2>
+            
+            <?php if (count($lista) > 0): ?>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Ano</th>
+                                <th>Gênero</th>
+                                <th>Quantidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($lista as $livro): ?>
+                                <tr>
+                                    <td><strong><?php echo htmlspecialchars($livro->getTitulo()); ?></strong></td>
+                                    <td><?php echo htmlspecialchars($livro->getAutor()); ?></td>
+                                    <td><?php echo $livro->getAnoPublicacao(); ?></td>
+                                    <td><?php echo htmlspecialchars($livro->getGenero()); ?></td>
+                                    <td><?php echo $livro->getQuantidade(); ?></td>
+                                    <td>
+                                        <div class="actions">
+                                            <form method="POST">
+                                                <input type="hidden" name="acao" value="editar">
+                                                <input type="hidden" name="titulo" value="<?php echo $livro->getTitulo(); ?>">
+                                                <button type="submit" class="btn btn-edit">✏️ Editar</button>
+                                            </form>
+                                            <form method="POST">
+                                                <input type="hidden" name="acao" value="deletar">
+                                                <input type="hidden" name="titulo" value="<?php echo $livro->getTitulo(); ?>">
+                                                <button type="submit" class="btn btn-delete" onclick="return confirm('Tem certeza que deseja excluir este livro?')">🗑️ Excluir</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
             <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Título</th>
-                        <th>Autor</th>
-                        <th>Ano</th>
-                        <th>Gênero</th>
-                        <th>Quantidade</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($lista as $livro): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($livro->getTitulo()); ?></td>
-                        <td><?php echo htmlspecialchars($livro->getAutor()); ?></td>
-                        <td><?php echo htmlspecialchars($livro->getAnoPublicacao()); ?></td>
-                        <td><?php echo htmlspecialchars($livro->getGenero()); ?></td>
-                        <td><?php echo htmlspecialchars($livro->getQuantidade()); ?></td>
-                        <td>
-                            <div class="acoes">
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="acao" value="editar">
-                                    <input type="hidden" name="titulo" value="<?php echo htmlspecialchars($livro->getTitulo()); ?>">
-                                    <button type="submit" class="btn btn-editar">Editar</button>
-                                </form>
-                                <form method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja excluir este livro?');">
-                                    <input type="hidden" name="acao" value="deletar">
-                                    <input type="hidden" name="titulo" value="<?php echo htmlspecialchars($livro->getTitulo()); ?>">
-                                    <button type="submit" class="btn btn-excluir">Excluir</button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                <div class="empty-state">
+                    <div>📚</div>
+                    <h3>Nenhum livro cadastrado</h3>
+                    <p>Comece cadastrando o primeiro livro no formulário acima.</p>
+                </div>
             <?php endif; ?>
         </div>
     </div>
-</div>
 
+    <script>
+        // Mostra/oculta campo de categoria personalizada
+        document.getElementById('genero').addEventListener('change', function() {
+            const outroGroup = document.getElementById('outroGeneroGroup');
+            const outroInput = document.getElementById('outroGenero');
+            
+            if (this.value === 'Outro') {
+                outroGroup.style.display = 'block';
+                outroInput.required = true;
+            } else {
+                outroGroup.style.display = 'none';
+                outroInput.required = false;
+                outroInput.value = '';
+            }
+        });
+
+        // Validação do formulário
+        document.getElementById('livroForm').addEventListener('submit', function(e) {
+            const generoSelect = document.getElementById('genero');
+            const outroInput = document.getElementById('outroGenero');
+            
+            // Se selecionou "Outro" mas não preencheu o campo
+            if (generoSelect.value === 'Outro' && !outroInput.value.trim()) {
+                e.preventDefault();
+                alert('Por favor, especifique a categoria personalizada.');
+                outroInput.focus();
+            }
+        });
+    </script>
 </body>
 </html>

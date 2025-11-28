@@ -1,11 +1,36 @@
 <?php
-
 class Livro {
     private $titulo;
     private $autor;
     private $ano_publicacao;
     private $genero;
     private $quantidade;
+
+    // LISTA DE CATEGORIAS PRÉ-DEFINIDAS
+    public static function getCategorias() {
+        return [
+            'Romance',
+            'Ficção Científica',
+            'Fantasia',
+            'Suspense',
+            'Terror',
+            'Mistério',
+            'Aventura',
+            'Biografia',
+            'História',
+            'Ciência',
+            'Tecnologia',
+            'Autoajuda',
+            'Poesia',
+            'Drama',
+            'Comédia',
+            'Infantil',
+            'Juvenil',
+            'Didático',
+            'Acadêmico',
+            'Outro'
+        ];
+    }
 
     public function __construct($titulo, $autor, $ano_publicacao, $genero, $quantidade){
         $this->titulo = $titulo;
@@ -14,6 +39,7 @@ class Livro {
         $this->genero = $genero;
         $this->quantidade = $quantidade;
     }
+
     public function getAnoPublicacao()
     {
         return $this->ano_publicacao;
@@ -22,7 +48,6 @@ class Livro {
     public function setAnoPublicacao($ano_publicacao)
     {
         $this->ano_publicacao = $ano_publicacao;
-
         return $this;
     }
 
@@ -34,7 +59,6 @@ class Livro {
     public function setTitulo($titulo)
     {
         $this->titulo = $titulo;
-
         return $this;
     }
 
@@ -46,7 +70,6 @@ class Livro {
     public function setAutor($autor)
     {
         $this->autor = $autor;
-
         return $this;
     }
 
@@ -58,7 +81,6 @@ class Livro {
     public function setQuantidade($quantidade)
     {
         $this->quantidade = $quantidade;
-
         return $this;
     }
 
@@ -70,8 +92,6 @@ class Livro {
     public function setGenero($genero)
     {
         $this->genero = $genero;
-
         return $this;
     }
-
 }
